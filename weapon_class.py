@@ -36,7 +36,7 @@ class Weapon:
         self._damage = value
 
     def __str__(self):
-        return f'{'-' * 15}\nНазвание оружия: {self._name}\nУрон от оружия: {self._damage}\n{'-' * 15}\n'
+        return f'Название оружия: {self._name}\nУрон от оружия: {self._damage}\n'
         
 class Character:
     
