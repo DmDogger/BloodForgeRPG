@@ -1,4 +1,5 @@
-from random import choice, random
+from __future__ import annotations
+from random import random
 
 class Weapon:
     weapon_list = ['меч', 'топор', 'копье', 'кувалда']
@@ -8,7 +9,7 @@ class Weapon:
         self.damage = damage
 
     @staticmethod
-    def allowed_weapon(value):
+    def allowed_weapon(value: str) -> bool:
         return value in Weapon.weapon_list
 
     @property
@@ -18,9 +19,9 @@ class Weapon:
     @name.setter
     def name(self, name):
         if not isinstance(name, str):
-            raise ValueError('[Ошибка ввода] -- Название не должно быть пустым')
+            raise ValueError('name must be non-empty string')
         if not Weapon.allowed_weapon(name):
-            raise ValueError(f'[Системная ошибка] -- Недопустиое название.\nРазрешенный тип оружия: {','.join(Weapon.weapon_list)}')
+            raise ValueError(f'can use only: {','.join(Weapon.weapon_list)}')
         self._name = name
 
     @property
@@ -30,33 +31,40 @@ class Weapon:
     @damage.setter
     def damage(self, value):
         if not isinstance(value, (int, float)):
-            raise ValueError(f'[Ошибка ввода] -- Урон не может быть представлен в формате str.\nНельзя: {value} ')
+            raise ValueError(f'value only int or float ')
         if value <= 0:
-            raise ValueError('Урон не может быть меньше или равен 0')
+            raise ValueError('damage must be greater than 0')
         self._damage = value
 
     def __str__(self):
-        return f'Название оружия: {self._name}\nУрон от оружия: {self._damage}\n'
+        return f'{self._name}\n{self._damage}'
         
 class Character:
-    
-    random_critical_bonus = [2, 5, 6, 0]
-
-    def __init__(self, health, power, strenght, agility, level, xp, weapon):
+    def __init__(self, health, weapon):
         self.health = health
-        self.power = power
-        self.strenght = strenght
-        self.agility = agility
-        self.level = level
-        self.xp = xp
+        self.power = 100
+        self.level = 1
+        self.xp = 0
         self.weapon = weapon
         self.is_rage = False
+        self.stats = {
+            'total_wins' : 0,
+            'total_loses' : 0,
+            'total_fights' : 0,
+        }
+
+    def __str__(self):
+        return '\n'.join([f'{key}: {value}' for key, value in sorted(self.__dict__.items())])
 
     def is_alive(self):
         return self.health > 0
     
-    def is_enough_power(self):
-        return self.power >= 50
+    def spend_power(self, cost: int) -> bool: 
+        if self.power >= cost:
+            self.power -= cost
+            return True
+        return False
+
     
     @property
     def health(self):
@@ -65,42 +73,32 @@ class Character:
     @health.setter
     def health(self, value):
         if not isinstance(value, (int, float)):
-            raise ValueError('[Ошибка ввода]: Здоровье может быть только числом')
-        if not (0 <= value <= 100):
-            raise ValueError('[Ошибка ввода]: Здоровье может быть установлено только от 0 до 100')
-        self._health = value
+            raise ValueError('health can be only int or float')
+        self._health = min(100, max(0,  value))
 
     
     @staticmethod
-    def generate_random_critical_bonus():
-        random_bonus = [0, 0, 0.04, 0, 0.05, 0, 15, 0, 1, 0.1, 0.2, 0]
-        bonus = choice(random_bonus)
-        return bonus
+    def rage_attack_success():
+        return random() < 0.5
     
     def rage_mode(self):
-        '''
-        RAGE MODE: При включенном режиме яросте у персонажа есть шанс нанести
-        критический удар в пять раз выше с вероятностью 20%.
-        Если шанс не выпадет - у игрока отнимается 50% здоровья.
-        '''
-        if not self.is_rage:
-            self.is_rage = True
-            print('[RADE MODE: ON]')
-        else:
-            self.is_rage = False
-            print('[RADE MODE: OFF]')
-
+        self.is_rage = not self.is_rage
 
     def attack(self):
-        if self.is_rage:
-            if random() < 0.2:
-                self.power = 0
-                return self.weapon.damage * 5
+        # --- Обычный удар
+        if not self.is_rage:
+            if self.spend_power(5):
+                return round(self.weapon.damage * random(), 2)
             else:
-                self.health *= 0.5 
-                return self.weapon.damage
-
-        if self.is_enough_power():
-            self.power -= 50
-            return self.weapon.damage + Character.generate_random_critical_bonus()
-        return self.weapon.damage
+                self.health -= 5
+                return round(self.weapon.damage * random(), 2)
+            
+        # --- Удар берсерка
+        if self.is_rage:
+            if not self.spend_power(30):
+                return self.weapon.damage # возвращаем обычный урон если нет энергии
+            if self.rage_attack_success(): # если успешный удар
+                return self.weapon.damage  * 5 # вернем большой урон
+            self.health *= 0.5
+            return round(self.weapon.damage * random(), 2)
+                
