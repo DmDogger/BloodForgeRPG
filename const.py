@@ -1,0 +1,5 @@
+ALLOWED_WEAPONS = ['меч', 'топор', 'копье', 'кувалда']
+RAGE_SUCCESS_RATE = 0.5
+MAX_HEALTH = 100
+BASE_POWER_COST = 5
+RAGE_POWER_COST = 30
