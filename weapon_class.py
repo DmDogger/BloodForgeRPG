@@ -103,9 +103,16 @@ class Character:
             return round(self.weapon.damage * random(), 2)
                 
 class Enemy(Character):
-    def __init__(self, health, weapon, xp_reward):
+    def __init__(self, name, health, weapon, xp_reward):
         super().__init__(health, weapon)
         self.xp_reward = xp_reward
+        self.name = name
+
+class Player(Character):
+    def __init__(self, health, weapon, name):
+        super().__init__(health, weapon)
+        self.name = name
+
 
 
 class Battle:
@@ -114,5 +121,45 @@ class Battle:
         self.enemy = enemy
 
     def fight(self):
+        round_counter = 1
+        print('--- [Начало боя] ---')
+        print(f'Игрок {self.player.name} VS {self.enemy.name}')
+
         while self.player.is_alive() and self.enemy.is_alive():
-            #реализация боя
+            #каунтер раундов
+            print(f'Раунд: {round_counter}')
+
+            # враг атакует, снимает НР у героя
+            enemy_damage = self.enemy.attack()
+            self.player.health -= enemy_damage
+
+            
+            print(f'Враг [{self.enemy.name}] наносит [{enemy_damage}] урона. Осталось: {self.player.health} HP у игрока.')
+
+            #проверка жив ли игрок
+            if not self.player.is_alive():
+                print(f'Победитель: {self.enemy.name}')
+                self.enemy.stats['total_wins'] += 1
+                self.enemy.stats['total_fights'] += 1
+                self.player.stats['total_loses'] +=1
+                self.player.stats['total_fights'] += 1
+                break
+
+            #игрок атакует, снимает НР у врага
+            player_damage = self.player.attack()
+            self.enemy.health -= player_damage
+            print(f'Игрок [{self.player.name}] наносит [{player_damage}] урона. Осталось: {self.enemy.health} HP у врага.')
+
+            #проверка жив ли враг
+            if not self.enemy.is_alive():
+                print(f'Победитель: {self.player.name}')
+                self.player.stats['total_wins'] += 1
+                self.player.stats['total_fights'] += 1
+                self.enemy.stats['total_loses'] +=1
+                self.enemy.stats['total_fights'] += 1
+                break
+
+            round_counter += 1
+        print('--- Конец битвы ---')
+        print(f'У игрока всего боев {self.player.stats['total_fights']} из которых {self.player.stats['total_wins']} побед и {self.player.stats['total_loses']} поражений.')
+
