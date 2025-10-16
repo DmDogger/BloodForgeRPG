@@ -4,7 +4,7 @@ from random import random
 class Weapon:
     weapon_list = ['меч', 'топор', 'копье', 'кувалда']
 
-    def __init__(self, name, damage):
+    def __init__(self, name: str, damage: int):
         self.name = name
         self.damage = damage
 
@@ -17,7 +17,7 @@ class Weapon:
         return self._name
     
     @name.setter
-    def name(self, name):
+    def name(self, name: str):
         if not isinstance(name, str):
             raise ValueError('name must be non-empty string')
         if not Weapon.allowed_weapon(name):
@@ -102,3 +102,17 @@ class Character:
             self.health *= 0.5
             return round(self.weapon.damage * random(), 2)
                 
+class Enemy(Character):
+    def __init__(self, health, weapon, xp_reward):
+        super().__init__(health, weapon)
+        self.xp_reward = xp_reward
+
+
+class Battle:
+    def __init__(self, player, enemy):
+        self.player = player
+        self.enemy = enemy
+
+    def fight(self):
+        while self.player.is_alive() and self.enemy.is_alive():
+            #реализация боя
