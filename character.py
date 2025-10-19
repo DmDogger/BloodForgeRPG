@@ -1,6 +1,6 @@
 import constants
-import state
 from random import random
+import state
 
 class Weapon:
     '''
@@ -109,3 +109,4 @@ class Player(Character):
     '''Дефолтный класс персонажа'''
     def __init__(self, name, health, weapon):
         super().__init__(name, health, weapon)
+
