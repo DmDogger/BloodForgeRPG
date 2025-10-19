@@ -8,6 +8,10 @@ class AttackState(ABC):
         '''Метод для дочерних классов, определяющий атаку'''
         pass
 
+    def _rnd_multiplier(self) -> float:
+       #Генерируем каждый раз рандомный мултиплаер для урона от 0.6 до 1.2
+        return uniform(c.RANDOM_DAMAGE_MIN, c.RANDOM_DAMAGE_MAX)
+
 class NormalAttackState(AttackState):
     '''Класс для обычной атаки игрока'''
     def attack(self, character):
@@ -18,9 +22,6 @@ class NormalAttackState(AttackState):
             character.health -= c.NO_POWER_FINE
             return character.weapon.damage * c.NO_POWER_DAMAGE
         
-    def _rnd_multiplier(self) -> float:
-       #Генерируем каждый раз рандомный мултиплаер для урона от 0.6 до 1.2
-        return uniform(c.RANDOM_DAMAGE_MIN, c.RANDOM_DAMAGE_MAX)
         
 
 class RageAttackState(AttackState):
@@ -40,9 +41,7 @@ class RageAttackState(AttackState):
         miltiplied_damage = round(character.weapon.damage * self._rnd_multiplier(), 2) # Округляем до 2-х символов
         return miltiplied_damage
     
-    def _rnd_multiplier(self) -> float:
-       #Генерируем каждый раз рандомный мултиплаер для урона от 0.6 до 1.2
-        return uniform(c.RANDOM_DAMAGE_MIN, c.RANDOM_DAMAGE_MAX)
+
     
 
 class PoisonedAttackState(AttackState):

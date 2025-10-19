@@ -4,7 +4,11 @@ LEVEL = 1
 XP = 0
 
 # WEAPON CONSTANTS
-ALLOWED_WEAPONS = ['меч', 'топор', 'копье', 'кувалда']
+ALLOWED_WEAPONS = ['Сапфировое копье',
+                   'Латунный меч',
+                   'Ядовитый кинжал',
+                   'Алмазный топор',
+                    ]
 
 # RAGE MODE CONSTANTS
 RAGE_SUCCESS_RATE = 0.5

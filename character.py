@@ -1,3 +1,4 @@
+from __future__ import annotations
 import constants
 from random import random
 import state
@@ -17,11 +18,11 @@ class Weapon:
         return value in constants.ALLOWED_WEAPONS
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
     
     @name.setter
-    def name(self, name: str):
+    def name(self, name: str) -> None:
         if not isinstance(name, str):
             raise ValueError('Имя должно быть только непустой строкой. Формат: STR')
         if name not in constants.ALLOWED_WEAPONS:
@@ -29,11 +30,11 @@ class Weapon:
         self._name = name
 
     @property
-    def damage(self):
+    def damage(self) -> int | float:
         return self._damage
     
     @damage.setter
-    def damage(self, value):
+    def damage(self, value: int | float) -> None:
         if not isinstance(value, (int, float)):
             raise ValueError(f'Значения могут быть только INT и FLOAT')
         if not (0 < value <= 25):
@@ -57,7 +58,7 @@ class Character:
             'total_fights' : 0,
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.name}: {self.health} HP'
 
     def is_alive(self) -> bool:

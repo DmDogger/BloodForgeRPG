@@ -1,27 +1,36 @@
-from __future__ import annotations
-from random import random, uniform
-import constants
-import state
-from stats import Stats
-from battle import Battle
+import logging
+
+# 1. Конфигурация логгера в самом верху
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(message)s',
+)
+
+from stats import InMemoryStats
 from character import Weapon, Player, Enemy
+from battle import BattleEngine
+from logger import Logger, ConsoleLogger
 
 
 if __name__ == "__main__":
-    # Создаём оружие
-    player_weapon = Weapon(name='меч', damage=10)  # Урон в диапазоне 1-25
-    enemy_weapon = Weapon(name='топор', damage=10)
+    # 2. Создаем все зависимости
+    stats_manager = InMemoryStats()
+    logger = ConsoleLogger()
+
+    # 3. Создаем оружие и игроков
+    player_weapon = Weapon(name='Ядовитый кинжал', damage=10)
+    enemy_weapon = Weapon(name='Алмазный топор', damage=10)
     
-    # Создаём игроков
-    player = Player(name='хХх_Злая_киса_ХхХ', health=100, weapon=player_weapon)
-    enemy = Enemy(name='БлудякаГном28', health=100, weapon=enemy_weapon)
+    player = Player(name='ИГРОК_ДИМАС', health=100, weapon=player_weapon)
+    enemy = Enemy(name='бот андрогин', health=100, weapon=enemy_weapon)
     
-    # Создаём битву и запускаем
-    battle = Battle(fighter_1=player, fighter_2=enemy)
-    battle.fight()
+    # 4. Создаем экземпляр движка боя, передавая ему все зависимости
+    battle_engine = BattleEngine(
+        attacker=player, 
+        defender=enemy, 
+        stats_manager=stats_manager, 
+        logger=logger
+    )
     
-
-
-
-
-
+    # 5. Запускаем бой
+    battle_engine.fight()
