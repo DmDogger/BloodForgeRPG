@@ -6,7 +6,7 @@ logging.basicConfig(
     format='%(message)s',
 )
 
-from stats import InMemoryStats
+from stats import InMemoryStats, JsonManagerStats
 from character import Weapon, Player, Enemy
 from battle import BattleEngine
 from logger import Logger, ConsoleLogger
@@ -14,7 +14,7 @@ from logger import Logger, ConsoleLogger
 
 if __name__ == "__main__":
     # 2. Создаем все зависимости
-    stats_manager = InMemoryStats()
+    stats_manager = JsonManagerStats('data.json')
     logger = ConsoleLogger()
 
     # 3. Создаем оружие и игроков
@@ -32,5 +32,4 @@ if __name__ == "__main__":
         logger=logger
     )
     
-    # 5. Запускаем бой
-    battle_engine.fight()
+battle_engine.fight()

@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import json
 import os
+import logging
 from character import Player, Enemy # type: ignore
 
 class StatsManager(ABC):
@@ -63,19 +64,98 @@ class InMemoryStats(StatsManager):
 
 class JsonManagerStats(StatsManager):
     '''Класс для сохранения статистики в JSON-объект'''
-    def __init__(self, file):
-        self.file = file
+    def __init__(self, filename):
+        self.filename = filename
 
     def _load_stats(self) -> dict:
-        '''Загружаем статистику из JSON-объекта'''
-        if os.path.exist(self.file) and os.path.getsize(self.file) > 0:
-            try:
-                with open(self.file, 'r', encoding='utf-8') as file:
-                    return json.load(file)
-            except json.JSONDecodeError:
-                return {}
-        else:
+        '''Метод загружает статистику персонажа из JSON'''
+        try:
+            with open(self.filename, 'r', encoding='utf-8') as f:
+                jsondata = json.load(f)
+                return jsondata
+        except json.JSONDecodeError:
             return {}
+
+    def _save_stats(self, data: dict) -> None:
+        '''Метод сохраняет статистику в JSON'''
+        try:
+            with open(self.filename, 'w', encoding='utf-8') as f:
+                # Сохраняем статистику в файл, отступ: 3
+                json.dump(data, f, ensure_ascii=False, indent=3)
+        except (OSError, TypeError) as e:
+            logging.error(f'Не удалось выполнить операцию. Ошибка {e}')
+
+
+    def record_victory(self, winner: Player | Enemy, loser: Player | Enemy) -> None:
+        '''Метод записывает победу в JSON'''
+        json_stats = self._load_stats() # ЗАГРУЗКА СТАТИСТИКИ
+        # получаем ключи - имея победителя и проигравшего
+        if not winner.name in json_stats:
+            json_stats[winner.name] = { 'total_fights' : 0,
+                                       'total_wins' : 0,
+                                       'total_loses' : 0,
+                                       'total_draws' : 0
+            }
+
+        if not loser.name in json_stats:
+            json_stats[loser.name] = { 'total_fights' : 0,
+                                       'total_wins' : 0,
+                                       'total_loses' : 0,
+                                       'total_draws' : 0
+            }
+            
+
+           
+        #записываем статистику победителю
+        json_stats[winner.name]['total_fights'] += 1
+        json_stats[winner.name]['total_wins'] += 1
+
+        #записываем статистику 
+        json_stats[loser.name]['total_fights'] +=1
+        json_stats[loser.name]['total_loses'] += 1
+
+        self._save_stats(json_stats)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def make_draw(self, attacker, defender): #добавить аннотации
+        json_data = self._load_stats()
+
+        atckr_name = json_data.get(attacker.name, 'unkown_char_1')
+        dfndr_name = json_data.get(defender.name, 'unkown_char_2')
+
+        pass
+
+
+
         
 # Будет реализация JSON + SQLite
 # Here will be realised class of SQLite Stats

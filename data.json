@@ -1,0 +1,14 @@
+{
+   "ИГРОК_ДИМАС": {
+      "total_fights": 94,
+      "total_wins": 52,
+      "total_loses": 42,
+      "total_draws": 0
+   },
+   "бот андрогин": {
+      "total_fights": 94,
+      "total_wins": 42,
+      "total_loses": 52,
+      "total_draws": 0
+   }
+}

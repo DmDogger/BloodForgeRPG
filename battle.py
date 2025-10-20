@@ -1,13 +1,13 @@
 from __future__ import annotations
 import logging
 import constants as c
-from stats import StatsManager # type: ignore
+from stats import StatsManager, JsonManagerStats # type: ignore
 from random import shuffle
 from character import Player, Enemy, Character # type: ignore
 from logger import Logger, ConsoleLogger # type: ignore
 
 class BattleEngine:
-    def __init__(self, attacker: Player | Enemy, defender: Player | Enemy, stats_manager: StatsManager, logger: Logger) -> None:
+    def __init__(self, attacker: Player | Enemy, defender: Player | Enemy, stats_manager: JsonManagerStats, logger: Logger) -> None:
         self.attacker = attacker
         self.defender = defender
         self.stats_manager = stats_manager # Stats_manager будет гибким
