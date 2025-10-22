@@ -1,14 +1,44 @@
 {
    "ИГРОК_ДИМАС": {
-      "total_fights": 94,
-      "total_wins": 52,
-      "total_loses": 42,
+      "total_fights": 105,
+      "total_wins": 57,
+      "total_loses": 48,
       "total_draws": 0
    },
    "бот андрогин": {
-      "total_fights": 94,
-      "total_wins": 42,
-      "total_loses": 52,
+      "total_fights": 107,
+      "total_wins": 48,
+      "total_loses": 59,
+      "total_draws": 0
+   },
+   "антоха": {
+      "total_fights": 2,
+      "total_wins": 2,
+      "total_loses": 0,
+      "total_draws": 0
+   },
+   "ЖЕКА": {
+      "total_fights": 48,
+      "total_wins": 13,
+      "total_loses": 23,
+      "total_draws": 12
+   },
+   "БоЛьШаЯКаПиТоШкА": {
+      "total_fights": 48,
+      "total_wins": 23,
+      "total_loses": 13,
+      "total_draws": 12
+   },
+   "Дмитрий": {
+      "total_fights": 36,
+      "total_wins": 12,
+      "total_loses": 24,
+      "total_draws": 0
+   },
+   "Даша": {
+      "total_fights": 36,
+      "total_wins": 24,
+      "total_loses": 12,
       "total_draws": 0
    }
 }

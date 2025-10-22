@@ -1,9 +1,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import json
-import os
 import logging
-from character import Player, Enemy # type: ignore
+from character import Player, Enemy
+from db import Database
+from msgs import ERR_MESSAGES
 
 class StatsManager(ABC):
     '''Абстрактный класс для менеджера статистики'''
@@ -85,77 +86,90 @@ class JsonManagerStats(StatsManager):
         except (OSError, TypeError) as e:
             logging.error(f'Не удалось выполнить операцию. Ошибка {e}')
 
+    def _create_user(self, user: Player | Enemy, json_data: dict) -> None:
+        '''Метод создает запись о игроке в JSON-файле, если их нет'''
+        if user.name not in json_data:
+            json_data[user.name] = {
+                'total_fights' : 0,
+                'total_wins' : 0,
+                'total_loses' : 0,
+                'total_draws' : 0
+        }
+
 
     def record_victory(self, winner: Player | Enemy, loser: Player | Enemy) -> None:
         '''Метод записывает победу в JSON'''
-        json_stats = self._load_stats() # ЗАГРУЗКА СТАТИСТИКИ
-        # получаем ключи - имея победителя и проигравшего
-        if not winner.name in json_stats:
-            json_stats[winner.name] = { 'total_fights' : 0,
-                                       'total_wins' : 0,
-                                       'total_loses' : 0,
-                                       'total_draws' : 0
-            }
-
-        if not loser.name in json_stats:
-            json_stats[loser.name] = { 'total_fights' : 0,
-                                       'total_wins' : 0,
-                                       'total_loses' : 0,
-                                       'total_draws' : 0
-            }
-            
-
+        json_data = self._load_stats() # ЗАГРУЗКА СТАТИСТИКИ
+        '''Создаем пользователя, если его нет в JSON-файле'''
+        self._create_user(winner, json_data)
+        self._create_user(loser, json_data)
            
         #записываем статистику победителю
-        json_stats[winner.name]['total_fights'] += 1
-        json_stats[winner.name]['total_wins'] += 1
+        json_data[winner.name]['total_fights'] += 1
+        json_data[winner.name]['total_wins'] += 1
 
-        #записываем статистику 
-        json_stats[loser.name]['total_fights'] +=1
-        json_stats[loser.name]['total_loses'] += 1
+        #записываем статистику проигравшему
+        json_data[loser.name]['total_fights'] +=1
+        json_data[loser.name]['total_loses'] += 1
 
-        self._save_stats(json_stats)
+        self._save_stats(json_data)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def make_draw(self, attacker, defender): #добавить аннотации
+    def make_draw(self, attacker: Player | Enemy, defender: Player | Enemy) -> None:
+        '''Метод записывает ничью в JSON'''
         json_data = self._load_stats()
+        self._create_user(attacker, json_data)
+        self._create_user(defender, json_data)
 
-        atckr_name = json_data.get(attacker.name, 'unkown_char_1')
-        dfndr_name = json_data.get(defender.name, 'unkown_char_2')
-
-        pass
-
-
-
+        #записываем в статистику ничьи 
+        json_data[attacker.name]['total_fights'] += 1
+        json_data[attacker.name]['total_draws'] += 1
+        json_data[defender.name]['total_fights'] += 1
+        json_data[defender.name]['total_draws'] += 1
         
-# Будет реализация JSON + SQLite
-# Here will be realised class of SQLite Stats
+        self._save_stats(json_data)
+
+class SQLiteManagerStats(StatsManager):
+    '''Работает с статистикой в SQLite'''
+    def __init__(self, db: Database, attacker: Player | Enemy, defender: Player | Enemy):
+        self.db = db
+        if not self.db.user_exists(attacker.name):
+            self.db.add_user(attacker.name)
+        if not self.db.user_exists(defender.name):
+            self.db.add_user(defender.name)
+
+    def record_victory(self, winner: Player | Enemy, loser: Player | Enemy) -> None:
+        '''Метод записывает победу (победителю) и проигрыш (проигравшему) В БД'''
+        winner_stat = self.db.get_statistic(winner.name) # забираем дикт со статой
+        loser_stat = self.db.get_statistic(loser.name)
+        
+        if winner_stat is None or loser_stat is None:
+            logging.error(ERR_MESSAGES['DB_RETURNED_NONE'])
+            return
+        
+        winner_stat['total_fights'] += 1
+        winner_stat['total_wins'] += 1
+
+        loser_stat['total_fights'] += 1
+        loser_stat['total_losses'] += 1
+
+        self.db.update_user_stats(winner.name, winner_stat)
+        self.db.update_user_stats(loser.name, loser_stat)
+
+    def make_draw(self, attacker: Player | Enemy, defender: Player | Enemy) -> None:
+        '''Метод записывает игрокам ничьи'''
+        attacker_stat = self.db.get_statistic(attacker.name)
+        defender_stat = self.db.get_statistic(defender.name)
+
+        if attacker_stat is None or defender_stat is None:
+            logging.error(ERR_MESSAGES['DB_RETURNED_NONE'])
+            return
+        
+        attacker_stat['total_fights'] += 1
+        attacker_stat['total_draws'] += 1
+        defender_stat['total_fights'] += 1
+        defender_stat['total_draws'] += 1
+
+        self.db.update_user_stats(attacker.name, attacker_stat)
+        self.db.update_user_stats(defender.name, defender_stat)
+
+
